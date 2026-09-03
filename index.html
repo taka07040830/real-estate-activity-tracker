@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0d5c4f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="行動管理">
+<title>不動産行動管理</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --accent:#0d5c4f;
+    --accent-light:#e4f2ef;
+    --bg:#f4f6f5;
+    --card:#ffffff;
+    --text:#1b2422;
+    --sub:#6b7876;
+    --border:#e3e8e6;
+    --danger:#c0392b;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:calc(64px + env(safe-area-inset-bottom));
+    min-height:100vh;
+  }
+  header{
+    position:sticky;top:0;z-index:5;
+    background:linear-gradient(180deg,var(--accent),#0a4a3f);
+    color:#fff;
+    padding:16px 18px calc(16px + env(safe-area-inset-top)) 18px;
+    margin-top:calc(-1 * env(safe-area-inset-top));
+    padding-top:calc(16px + env(safe-area-inset-top));
+    border-radius:0 0 20px 20px;
+    box-shadow:0 4px 14px rgba(13,92,79,.25);
+  }
+  header h1{font-size:17px;margin:0 0 6px;font-weight:700;letter-spacing:.02em;}
+  .period-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;opacity:.95;}
+  .period-row .days-left{font-size:20px;font-weight:800;}
+  .period-row .days-left small{font-size:12px;font-weight:500;margin-left:2px;}
+  .gear-btn{
+    background:rgba(255,255,255,.18);border:none;color:#fff;
+    width:34px;height:34px;border-radius:10px;font-size:16px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  main{padding:14px 14px 8px;max-width:520px;margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:14px 16px 16px;
+    margin-bottom:12px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+    border:1px solid var(--border);
+  }
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .cat-name{font-weight:700;font-size:15px;}
+  .goal-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin-bottom:10px;}
+  .goal-row input{
+    width:72px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;
+    font-size:14px;text-align:right;color:var(--text);
+  }
+  .progress-wrap{margin-bottom:12px;}
+  .progress-bar{height:9px;background:var(--accent-light);border-radius:6px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .25s ease;}
+  .progress-text{font-size:12px;color:var(--sub);margin-top:5px;display:flex;justify-content:space-between;}
+  .progress-text b{color:var(--accent);font-size:13px;}
+  .today-row{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--border);padding-top:10px;}
+  .today-row .today-count{font-size:12px;color:var(--sub);flex:1;}
+  .today-row input{
+    width:64px;padding:8px;border:1px solid var(--border);border-radius:10px;
+    font-size:15px;text-align:center;
+  }
+  .add-btn{
+    background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:8px 14px;font-size:14px;font-weight:700;white-space:nowrap;
+  }
+  .add-btn:active{opacity:.8;}
+
+  .toolbar{display:flex;gap:8px;margin-bottom:12px;}
+  .toolbar select{
+    flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--border);
+    background:#fff;font-size:13px;
+  }
+  .csv-btn{
+    background:#fff;border:1px solid var(--accent);color:var(--accent);
+    border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap;
+  }
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
+  thead th{
+    background:var(--accent-light);color:var(--accent);
+    font-size:12px;padding:9px 8px;text-align:left;font-weight:700;
+  }
+  tbody td{padding:9px 8px;font-size:13px;border-top:1px solid var(--border);}
+  tbody tr:nth-child(even){background:#fafcfb;}
+  .del-btn{background:none;border:none;color:var(--danger);font-size:16px;padding:2px 6px;}
+  .empty-msg{text-align:center;color:var(--sub);font-size:13px;padding:30px 10px;}
+  .total-row{font-weight:700;background:var(--accent-light) !important;}
+
+  nav.tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:5;
+    display:flex;background:#fff;border-top:1px solid var(--border);
+    padding-bottom:env(safe-area-inset-bottom);
+    box-shadow:0 -2px 10px rgba(0,0,0,.05);
+  }
+  nav.tabbar button{
+    flex:1;border:none;background:none;padding:10px 0 8px;
+    font-size:11px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;
+  }
+  nav.tabbar button .ico{font-size:20px;}
+  nav.tabbar button.active{color:var(--accent);font-weight:700;}
+
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .modal-backdrop.hidden{display:none;}
+  .modal{
+    background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;
+    padding:20px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+  .modal h2{margin:0 0 14px;font-size:16px;}
+  .modal label{font-size:13px;color:var(--sub);display:block;margin-bottom:6px;}
+  .modal input[type=date]{
+    width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:16px;
+  }
+  .modal .row-btns{display:flex;gap:10px;}
+  .btn-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;}
+  .btn-secondary{flex:1;background:#eee;color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;}
+  .danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+  .danger-zone p{font-size:12px;color:var(--sub);margin:0 0 8px;}
+  .btn-danger{width:100%;background:#fff;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:11px;font-size:13px;font-weight:700;}
+</style>
+</head>
+<body>
+  <header>
+    <h1>不動産行動管理</h1>
+    <div class="period-row">
+      <div>目標期限: <span id="periodEndLabel">-</span> まで</div>
+      <button class="gear-btn" id="openSettings">⚙</button>
+    </div>
+    <div class="days-left" id="daysLeft">-</div>
+  </header>
+
+  <main>
+    <div id="view-home" class="view active"></div>
+    <div id="view-records" class="view">
+      <div class="toolbar">
+        <select id="filterCat">
+          <option value="">すべてのカテゴリ</option>
+        </select>
+        <button class="csv-btn" id="exportCsv">CSV出力</button>
+      </div>
+      <table>
+        <thead><tr><th>日付</th><th>カテゴリ</th><th>件数</th><th></th></tr></thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <nav class="tabbar">
+    <button class="tab-btn active" data-view="home"><span class="ico">🏠</span>ホーム</button>
+    <button class="tab-btn" data-view="records"><span class="ico">📋</span>記録一覧</button>
+  </nav>
+
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal">
+      <h2>目標期限の設定</h2>
+      <label for="periodEndInput">目標達成期限</label>
+      <input type="date" id="periodEndInput">
+      <div class="row-btns">
+        <button class="btn-secondary" id="closeSettings">閉じる</button>
+        <button class="btn-primary" id="saveSettings">保存</button>
+      </div>
+      <div class="danger-zone">
+        <p>新しい期間として最初からやり直したいときに使います。目標数値・記録・期限がすべて初期化されます。</p>
+        <button class="btn-danger" id="resetAll">この期間をリセットして新しく始める</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CATEGORIES = ["空き地・空き家さがし","ポスティング","所有者訪問","DM","その他"];
+  var STORAGE_KEY = "fudousan_katsudou_v1";
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function pad(n){ return n < 10 ? "0"+n : ""+n; }
+  function addMonths(dateStr, months){
+    var d = new Date(dateStr + "T00:00:00");
+    d.setMonth(d.getMonth() + months);
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function fmtJP(dateStr){
+    var p = dateStr.split("-");
+    return p[0] + "年" + p[1] + "月" + p[2] + "日";
+  }
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  }
+
+  function defaultState(){
+    var start = todayStr();
+    var goals = {};
+    CATEGORIES.forEach(function(c){ goals[c] = 0; });
+    return {
+      periodStart: start,
+      periodEnd: addMonths(start, 3),
+      goals: goals,
+      records: []
+    };
+  }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var s = JSON.parse(raw);
+      if(!s.goals) s.goals = {};
+      CATEGORIES.forEach(function(c){ if(typeof s.goals[c] !== "number") s.goals[c] = 0; });
+      if(!Array.isArray(s.records)) s.records = [];
+      if(!s.periodStart) s.periodStart = todayStr();
+      if(!s.periodEnd) s.periodEnd = addMonths(s.periodStart, 3);
+      return s;
+    }catch(e){
+      return defaultState();
+    }
+  }
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  var state = load();
+
+  function achievedFor(cat){
+    return state.records
+      .filter(function(r){ return r.category === cat && r.date >= state.periodStart; })
+      .reduce(function(sum, r){ return sum + r.count; }, 0);
+  }
+  function todayCountFor(cat){
+    var t = todayStr();
+    return state.records
+      .filter(function(r){ return r.category === cat && r.date === t; })
+      .reduce(function(sum, r){ return sum + r.count; }, 0);
+  }
+
+  var homeView = document.getElementById("view-home");
+  var recordsBody = document.getElementById("recordsBody");
+  var filterCat = document.getElementById("filterCat");
+  var periodEndLabel = document.getElementById("periodEndLabel");
+  var daysLeftEl = document.getElementById("daysLeft");
+
+  function renderHeader(){
+    periodEndLabel.textContent = fmtJP(state.periodEnd);
+    var diff = Math.ceil((new Date(state.periodEnd) - new Date(todayStr())) / 86400000);
+    if(diff > 0){
+      daysLeftEl.innerHTML = "あと " + diff + " <small>日</small>";
+    } else if(diff === 0){
+      daysLeftEl.innerHTML = "本日が期限です";
+    } else {
+      daysLeftEl.innerHTML = "期限を " + Math.abs(diff) + "日 超過";
+    }
+  }
+
+  function renderHome(){
+    homeView.innerHTML = "";
+    CATEGORIES.forEach(function(cat){
+      var target = state.goals[cat] || 0;
+      var achieved = achievedFor(cat);
+      var pct = target > 0 ? Math.min(100, Math.round(achieved / target * 100)) : 0;
+      var tCount = todayCountFor(cat);
+
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="card-head"><span class="cat-name">' + cat + '</span></div>' +
+        '<div class="goal-row"><label>目標</label>' +
+        '<input type="number" inputmode="numeric" class="goal-input" data-cat="' + cat + '" value="' + target + '"> 件（3か月後まで）</div>' +
+        '<div class="progress-wrap">' +
+          '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="progress-text"><span>達成 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
+        '</div>' +
+        '<div class="today-row">' +
+          '<span class="today-count">本日 ' + tCount + ' 件 追加済み</span>' +
+          '<input type="number" inputmode="numeric" class="today-input" data-cat="' + cat + '" placeholder="件数">' +
+          '<button class="add-btn" data-cat="' + cat + '">追加</button>' +
+        '</div>';
+      homeView.appendChild(card);
+    });
+
+    homeView.querySelectorAll(".goal-input").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var v = parseInt(inp.value, 10);
+        state.goals[inp.dataset.cat] = isNaN(v) || v < 0 ? 0 : v;
+        save();
+        renderHome();
+      });
+    });
+    homeView.querySelectorAll(".add-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var cat = btn.dataset.cat;
+        var input = homeView.querySelector('.today-input[data-cat="' + cssEscape(cat) + '"]');
+        var v = parseInt(input.value, 10);
+        if(isNaN(v) || v <= 0){ input.focus(); return; }
+        state.records.push({ id: uid(), date: todayStr(), category: cat, count: v });
+        save();
+        renderHome();
+        renderRecords();
+      });
+    });
+  }
+
+  function cssEscape(s){
+    return s.replace(/["\\]/g, "\\$&");
+  }
+
+  function renderFilterOptions(){
+    var current = filterCat.value;
+    filterCat.innerHTML = '<option value="">すべてのカテゴリ</option>' +
+      CATEGORIES.map(function(c){ return '<option value="' + c + '">' + c + '</option>'; }).join("");
+    filterCat.value = current;
+  }
+
+  function renderRecords(){
+    var filter = filterCat.value;
+    var rows = state.records
+      .filter(function(r){ return !filter || r.category === filter; })
+      .slice()
+      .sort(function(a,b){ return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+
+    if(rows.length === 0){
+      recordsBody.innerHTML = '<tr><td colspan="4"><div class="empty-msg">まだ記録がありません。ホーム画面から入力してください。</div></td></tr>';
+      return;
+    }
+
+    var total = rows.reduce(function(s,r){ return s + r.count; }, 0);
+    recordsBody.innerHTML = rows.map(function(r){
+      return '<tr>' +
+        '<td>' + r.date + '</td>' +
+        '<td>' + r.category + '</td>' +
+        '<td>' + r.count + '</td>' +
+        '<td><button class="del-btn" data-id="' + r.id + '">🗑</button></td>' +
+        '</tr>';
+    }).join("") +
+    '<tr class="total-row"><td colspan="2">合計</td><td>' + total + '</td><td></td></tr>';
+
+    recordsBody.querySelectorAll(".del-btn").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        state.records = state.records.filter(function(r){ return r.id !== btn.dataset.id; });
+        save();
+        renderRecords();
+        renderHome();
+      });
+    });
+  }
+
+  filterCat.addEventListener("change", renderRecords);
+
+  document.getElementById("exportCsv").addEventListener("click", function(){
+    var filter = filterCat.value;
+    var rows = state.records
+      .filter(function(r){ return !filter || r.category === filter; })
+      .slice()
+      .sort(function(a,b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+    var csv = "\ufeff日付,カテゴリ,件数\n" +
+      rows.map(function(r){ return r.date + "," + r.category + "," + r.count; }).join("\n");
+    var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "不動産行動記録_" + todayStr() + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  var tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabBtns.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+      document.getElementById("view-" + btn.dataset.view).classList.add("active");
+    });
+  });
+
+  var settingsModal = document.getElementById("settingsModal");
+  var periodEndInput = document.getElementById("periodEndInput");
+  document.getElementById("openSettings").addEventListener("click", function(){
+    periodEndInput.value = state.periodEnd;
+    settingsModal.classList.remove("hidden");
+  });
+  document.getElementById("closeSettings").addEventListener("click", function(){
+    settingsModal.classList.add("hidden");
+  });
+  document.getElementById("saveSettings").addEventListener("click", function(){
+    if(periodEndInput.value){
+      state.periodEnd = periodEndInput.value;
+      save();
+      renderHeader();
+    }
+    settingsModal.classList.add("hidden");
+  });
+  document.getElementById("resetAll").addEventListener("click", function(){
+    if(confirm("目標数値・すべての記録・期限を初期化して、今日から新しい3か月を始めます。よろしいですか？")){
+      state = defaultState();
+      save();
+      settingsModal.classList.add("hidden");
+      renderAll();
+    }
+  });
+
+  function renderAll(){
+    renderHeader();
+    renderHome();
+    renderFilterOptions();
+    renderRecords();
+  }
+  renderAll();
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
