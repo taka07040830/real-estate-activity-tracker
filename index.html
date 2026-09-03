@@ -45,13 +45,21 @@
     border-radius:0 0 20px 20px;
     box-shadow:0 4px 14px rgba(13,92,79,.25);
   }
-  header h1{font-size:17px;margin:0 0 6px;font-weight:700;letter-spacing:.02em;}
-  .period-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;opacity:.95;}
-  .period-row .days-left{font-size:20px;font-weight:800;}
-  .period-row .days-left small{font-size:12px;font-weight:500;margin-left:2px;}
+  header h1{font-size:21px;margin:0 0 8px;font-weight:700;letter-spacing:.02em;}
+  .purpose-row{
+    display:flex;align-items:flex-start;gap:8px;cursor:pointer;
+    background:rgba(255,255,255,.14);border-radius:12px;
+    padding:12px 14px;margin-bottom:12px;font-size:16px;line-height:1.5;
+  }
+  .purpose-row .purpose-icon{font-size:19px;flex-shrink:0;}
+  .purpose-row .purpose-text{flex:1;white-space:pre-wrap;word-break:break-word;}
+  .purpose-row .purpose-text.placeholder{opacity:.75;}
+  .period-row{display:flex;align-items:center;justify-content:space-between;font-size:16px;opacity:.95;}
+  .period-row .days-left{font-size:27px;font-weight:800;}
+  .period-row .days-left small{font-size:15px;font-weight:500;margin-left:2px;}
   .gear-btn{
     background:rgba(255,255,255,.18);border:none;color:#fff;
-    width:34px;height:34px;border-radius:10px;font-size:16px;
+    width:40px;height:40px;border-radius:10px;font-size:19px;
     display:flex;align-items:center;justify-content:center;
   }
   main{padding:14px 14px 8px;max-width:520px;margin:0 auto;}
@@ -66,48 +74,57 @@
     box-shadow:0 1px 3px rgba(0,0,0,.06);
     border:1px solid var(--border);
   }
-  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .cat-name{font-weight:700;font-size:15px;}
-  .goal-row{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin-bottom:10px;}
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cat-name{font-weight:700;font-size:19px;}
+  .goal-row{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--sub);margin-bottom:10px;}
   .goal-row input{
-    width:72px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;
-    font-size:14px;text-align:right;color:var(--text);
+    width:88px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;
+    font-size:17px;text-align:right;color:var(--text);
   }
-  .progress-wrap{margin-bottom:12px;}
-  .progress-bar{height:9px;background:var(--accent-light);border-radius:6px;overflow:hidden;}
+  .pace-hint{font-size:14px;color:var(--sub);margin:-2px 0 12px;}
+  .progress-wrap{margin-bottom:14px;}
+  .progress-bar{height:11px;background:var(--accent-light);border-radius:6px;overflow:hidden;}
   .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .25s ease;}
-  .progress-text{font-size:12px;color:var(--sub);margin-top:5px;display:flex;justify-content:space-between;}
-  .progress-text b{color:var(--accent);font-size:13px;}
-  .today-row{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--border);padding-top:10px;}
-  .today-row .today-count{font-size:12px;color:var(--sub);flex:1;}
+  .progress-text{font-size:14px;color:var(--sub);margin-top:6px;display:flex;justify-content:space-between;}
+  .progress-text b{color:var(--accent);font-size:16px;}
+  .mini-stats{display:flex;gap:8px;margin-bottom:14px;}
+  .mini-stat{
+    flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:8px 10px;text-align:center;
+  }
+  .mini-stat .mini-label{font-size:13px;color:var(--sub);display:block;margin-bottom:3px;}
+  .mini-stat .mini-value{font-size:18px;font-weight:700;color:var(--text);}
+  .mini-stat .mini-value.behind{color:var(--danger);}
+  .today-row{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--border);padding-top:12px;}
+  .today-row .today-count{font-size:14px;color:var(--sub);flex:1;}
   .today-row input{
-    width:64px;padding:8px;border:1px solid var(--border);border-radius:10px;
-    font-size:15px;text-align:center;
+    width:76px;padding:9px;border:1px solid var(--border);border-radius:10px;
+    font-size:18px;text-align:center;
   }
   .add-btn{
     background:var(--accent);color:#fff;border:none;border-radius:10px;
-    padding:8px 14px;font-size:14px;font-weight:700;white-space:nowrap;
+    padding:10px 16px;font-size:16px;font-weight:700;white-space:nowrap;
   }
   .add-btn:active{opacity:.8;}
 
   .toolbar{display:flex;gap:8px;margin-bottom:12px;}
   .toolbar select{
-    flex:1;padding:9px 10px;border-radius:10px;border:1px solid var(--border);
-    background:#fff;font-size:13px;
+    flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);
+    background:#fff;font-size:15px;
   }
   .csv-btn{
     background:#fff;border:1px solid var(--accent);color:var(--accent);
-    border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap;
+    border-radius:10px;padding:10px 14px;font-size:15px;font-weight:700;white-space:nowrap;
   }
   table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);}
   thead th{
     background:var(--accent-light);color:var(--accent);
-    font-size:12px;padding:9px 8px;text-align:left;font-weight:700;
+    font-size:14px;padding:10px 8px;text-align:left;font-weight:700;
   }
-  tbody td{padding:9px 8px;font-size:13px;border-top:1px solid var(--border);}
+  tbody td{padding:10px 8px;font-size:15px;border-top:1px solid var(--border);}
   tbody tr:nth-child(even){background:#fafcfb;}
-  .del-btn{background:none;border:none;color:var(--danger);font-size:16px;padding:2px 6px;}
-  .empty-msg{text-align:center;color:var(--sub);font-size:13px;padding:30px 10px;}
+  .del-btn{background:none;border:none;color:var(--danger);font-size:19px;padding:2px 6px;}
+  .empty-msg{text-align:center;color:var(--sub);font-size:15px;padding:30px 10px;}
   .total-row{font-weight:700;background:var(--accent-light) !important;}
 
   nav.tabbar{
@@ -118,9 +135,9 @@
   }
   nav.tabbar button{
     flex:1;border:none;background:none;padding:10px 0 8px;
-    font-size:11px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;
+    font-size:13px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:3px;
   }
-  nav.tabbar button .ico{font-size:20px;}
+  nav.tabbar button .ico{font-size:24px;}
   nav.tabbar button.active{color:var(--accent);font-weight:700;}
 
   .modal-backdrop{
@@ -132,22 +149,30 @@
     background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;
     padding:20px 20px calc(20px + env(safe-area-inset-bottom));
   }
-  .modal h2{margin:0 0 14px;font-size:16px;}
-  .modal label{font-size:13px;color:var(--sub);display:block;margin-bottom:6px;}
+  .modal h2{margin:0 0 16px;font-size:19px;}
+  .modal label{font-size:15px;color:var(--sub);display:block;margin-bottom:7px;}
   .modal input[type=date]{
-    width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font-size:15px;margin-bottom:16px;
+    width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:17px;margin-bottom:16px;
+  }
+  .modal textarea{
+    width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:16px;
+    margin-bottom:16px;resize:vertical;min-height:70px;font-family:inherit;
   }
   .modal .row-btns{display:flex;gap:10px;}
-  .btn-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;}
-  .btn-secondary{flex:1;background:#eee;color:var(--text);border:none;border-radius:10px;padding:12px;font-size:14px;}
+  .btn-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;}
+  .btn-secondary{flex:1;background:#eee;color:var(--text);border:none;border-radius:10px;padding:13px;font-size:16px;}
   .danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
-  .danger-zone p{font-size:12px;color:var(--sub);margin:0 0 8px;}
-  .btn-danger{width:100%;background:#fff;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:11px;font-size:13px;font-weight:700;}
+  .danger-zone p{font-size:14px;color:var(--sub);margin:0 0 8px;}
+  .btn-danger{width:100%;background:#fff;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:12px;font-size:15px;font-weight:700;}
 </style>
 </head>
 <body>
   <header>
     <h1>不動産行動管理</h1>
+    <div class="purpose-row" id="purposeRow">
+      <span class="purpose-icon">🎯</span>
+      <span class="purpose-text" id="purposeText"></span>
+    </div>
     <div class="period-row">
       <div>目標期限: <span id="periodEndLabel">-</span> まで</div>
       <button class="gear-btn" id="openSettings">⚙</button>
@@ -178,7 +203,9 @@
 
   <div class="modal-backdrop hidden" id="settingsModal">
     <div class="modal">
-      <h2>目標期限の設定</h2>
+      <h2>目標の設定</h2>
+      <label for="purposeInput">何のために頑張るか（トップ画面にずっと表示されます）</label>
+      <textarea id="purposeInput" placeholder="例: 借金を完済するため。月〇〇円稼ぐ。"></textarea>
       <label for="periodEndInput">目標達成期限</label>
       <input type="date" id="periodEndInput">
       <div class="row-btns">
@@ -216,12 +243,29 @@
   function uid(){
     return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
   }
+  function daysBetween(startStr, endStr){
+    var a = new Date(startStr + "T00:00:00");
+    var b = new Date(endStr + "T00:00:00");
+    return Math.round((b - a) / 86400000) + 1;
+  }
+  function startOfWeek(dateStr){
+    var d = new Date(dateStr + "T00:00:00");
+    var day = d.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+  function fmtPace(n){
+    if(n <= 0) return "0";
+    return (Math.round(n * 10) / 10).toString();
+  }
 
   function defaultState(){
     var start = todayStr();
     var goals = {};
     CATEGORIES.forEach(function(c){ goals[c] = 0; });
     return {
+      purpose: "",
       periodStart: start,
       periodEnd: addMonths(start, 3),
       goals: goals,
@@ -237,6 +281,7 @@
       if(!s.goals) s.goals = {};
       CATEGORIES.forEach(function(c){ if(typeof s.goals[c] !== "number") s.goals[c] = 0; });
       if(!Array.isArray(s.records)) s.records = [];
+      if(typeof s.purpose !== "string") s.purpose = "";
       if(!s.periodStart) s.periodStart = todayStr();
       if(!s.periodEnd) s.periodEnd = addMonths(s.periodStart, 3);
       return s;
@@ -261,14 +306,29 @@
       .filter(function(r){ return r.category === cat && r.date === t; })
       .reduce(function(sum, r){ return sum + r.count; }, 0);
   }
+  function weekCountFor(cat){
+    var ws = startOfWeek(todayStr());
+    if(ws < state.periodStart) ws = state.periodStart;
+    return state.records
+      .filter(function(r){ return r.category === cat && r.date >= ws; })
+      .reduce(function(sum, r){ return sum + r.count; }, 0);
+  }
 
   var homeView = document.getElementById("view-home");
   var recordsBody = document.getElementById("recordsBody");
   var filterCat = document.getElementById("filterCat");
   var periodEndLabel = document.getElementById("periodEndLabel");
   var daysLeftEl = document.getElementById("daysLeft");
+  var purposeText = document.getElementById("purposeText");
 
   function renderHeader(){
+    if(state.purpose){
+      purposeText.textContent = state.purpose;
+      purposeText.classList.remove("placeholder");
+    } else {
+      purposeText.textContent = "タップして「何のために頑張るか」を入力";
+      purposeText.classList.add("placeholder");
+    }
     periodEndLabel.textContent = fmtJP(state.periodEnd);
     var diff = Math.ceil((new Date(state.periodEnd) - new Date(todayStr())) / 86400000);
     if(diff > 0){
@@ -282,11 +342,20 @@
 
   function renderHome(){
     homeView.innerHTML = "";
+    var totalDays = daysBetween(state.periodStart, state.periodEnd);
+    if(totalDays < 1) totalDays = 1;
+    var totalWeeks = totalDays / 7;
+
     CATEGORIES.forEach(function(cat){
       var target = state.goals[cat] || 0;
       var achieved = achievedFor(cat);
       var pct = target > 0 ? Math.min(100, Math.round(achieved / target * 100)) : 0;
       var tCount = todayCountFor(cat);
+      var wCount = weekCountFor(cat);
+      var dailyTarget = target / totalDays;
+      var weeklyTarget = target / totalWeeks;
+      var dailyLabel = fmtPace(dailyTarget);
+      var weeklyLabel = fmtPace(weeklyTarget);
 
       var card = document.createElement("div");
       card.className = "card";
@@ -294,9 +363,14 @@
         '<div class="card-head"><span class="cat-name">' + cat + '</span></div>' +
         '<div class="goal-row"><label>目標</label>' +
         '<input type="number" inputmode="numeric" class="goal-input" data-cat="' + cat + '" value="' + target + '"> 件（3か月後まで）</div>' +
+        '<div class="pace-hint">目安: 1日 ' + dailyLabel + '件 ／ 週 ' + weeklyLabel + '件</div>' +
         '<div class="progress-wrap">' +
           '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="progress-text"><span>達成 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
+          '<div class="progress-text"><span>累計達成 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
+        '</div>' +
+        '<div class="mini-stats">' +
+          '<div class="mini-stat"><span class="mini-label">今週</span><span class="mini-value' + (target > 0 && wCount < weeklyTarget ? ' behind' : '') + '">' + wCount + ' / ' + weeklyLabel + '</span></div>' +
+          '<div class="mini-stat"><span class="mini-label">本日</span><span class="mini-value' + (target > 0 && tCount < dailyTarget ? ' behind' : '') + '">' + tCount + ' / ' + dailyLabel + '</span></div>' +
         '</div>' +
         '<div class="today-row">' +
           '<span class="today-count">本日 ' + tCount + ' 件 追加済み</span>' +
@@ -405,19 +479,24 @@
 
   var settingsModal = document.getElementById("settingsModal");
   var periodEndInput = document.getElementById("periodEndInput");
-  document.getElementById("openSettings").addEventListener("click", function(){
+  var purposeInput = document.getElementById("purposeInput");
+  function openSettingsModal(){
     periodEndInput.value = state.periodEnd;
+    purposeInput.value = state.purpose;
     settingsModal.classList.remove("hidden");
-  });
+  }
+  document.getElementById("openSettings").addEventListener("click", openSettingsModal);
+  document.getElementById("purposeRow").addEventListener("click", openSettingsModal);
   document.getElementById("closeSettings").addEventListener("click", function(){
     settingsModal.classList.add("hidden");
   });
   document.getElementById("saveSettings").addEventListener("click", function(){
+    state.purpose = purposeInput.value.trim();
     if(periodEndInput.value){
       state.periodEnd = periodEndInput.value;
-      save();
-      renderHeader();
     }
+    save();
+    renderHeader();
     settingsModal.classList.add("hidden");
   });
   document.getElementById("resetAll").addEventListener("click", function(){
