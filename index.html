@@ -93,25 +93,14 @@
   .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .25s ease;}
   .progress-text{font-size:14px;color:var(--sub);margin-top:6px;display:flex;justify-content:space-between;}
   .progress-text b{color:var(--accent);font-size:16px;}
-  .mini-stats{display:flex;gap:8px;margin-bottom:4px;}
+  .mini-stats{display:flex;gap:8px;}
   .mini-stat{
     flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;
     padding:8px 6px;text-align:center;
   }
   .mini-stat .mini-label{font-size:12.5px;color:var(--sub);display:block;margin-bottom:3px;}
   .mini-stat .mini-value{font-size:17px;font-weight:700;color:var(--text);}
-  .goal-details{margin-top:10px;border-top:1px dashed var(--border);padding-top:2px;}
-  .goal-details summary{
-    font-size:13.5px;color:var(--sub);padding:8px 2px;cursor:pointer;list-style:none;
-  }
-  .goal-details summary::-webkit-details-marker{display:none;}
-  .goal-details summary::before{content:"⚙ ";}
-  .goal-row{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--sub);margin:8px 0 6px;}
-  .goal-row input{
-    width:80px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;
-    font-size:16px;text-align:right;color:var(--text);
-  }
-  .pace-hint{font-size:13px;color:var(--sub);}
+  .no-goal-msg{font-size:13px;color:var(--sub);text-align:center;padding:4px 0 2px;}
 
   .toolbar{display:flex;gap:8px;margin-bottom:12px;}
   .toolbar select{
@@ -152,10 +141,13 @@
   }
   .modal-backdrop.hidden{display:none;}
   .modal{
-    background:#fff;width:100%;max-width:520px;border-radius:20px 20px 0 0;
+    background:#fff;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;
+    border-radius:20px 20px 0 0;
     padding:20px 20px calc(20px + env(safe-area-inset-bottom));
   }
   .modal h2{margin:0 0 16px;font-size:19px;}
+  .modal h3{margin:0 0 4px;font-size:15px;color:var(--text);}
+  .modal .section-hint{font-size:12.5px;color:var(--sub);margin:0 0 10px;}
   .modal label{font-size:15px;color:var(--sub);display:block;margin-bottom:7px;}
   .modal input[type=date],
   .modal select{
@@ -166,12 +158,19 @@
     width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:16px;
     margin-bottom:16px;resize:vertical;min-height:70px;font-family:inherit;
   }
-  .modal .row-btns{display:flex;gap:10px;}
+  .modal .row-btns{display:flex;gap:10px;margin-top:4px;}
   .btn-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:16px;font-weight:700;}
   .btn-secondary{flex:1;background:#eee;color:var(--text);border:none;border-radius:10px;padding:13px;font-size:16px;}
   .danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
   .danger-zone p{font-size:14px;color:var(--sub);margin:0 0 8px;}
   .btn-danger{width:100%;background:#fff;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:12px;font-size:15px;font-weight:700;}
+  .monthly-goal-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .monthly-goal-row span.cat-label{flex:1;font-size:15px;color:var(--text);}
+  .monthly-goal-row input{
+    width:84px;padding:9px;border:1px solid var(--border);border-radius:8px;
+    font-size:16px;text-align:right;color:var(--text);
+  }
+  .monthly-goal-row .unit{font-size:13px;color:var(--sub);}
 </style>
 </head>
 <body>
@@ -182,7 +181,7 @@
       <span class="purpose-text" id="purposeText"></span>
     </div>
     <div class="period-row">
-      <div>目標期限: <span id="periodEndLabel">-</span> まで</div>
+      <div>今月: <span id="currentMonthLabel">-</span></div>
       <button class="gear-btn" id="openSettings">⚙</button>
     </div>
     <div class="days-left" id="daysLeft">-</div>
@@ -214,9 +213,12 @@
       <h2>目標の設定</h2>
       <label for="purposeInput">何のために頑張るか（トップ画面にずっと表示されます）</label>
       <textarea id="purposeInput" placeholder="例: 借金を完済するため。月〇〇円稼ぐ。"></textarea>
-      <label for="periodEndInput">目標達成期限</label>
-      <input type="date" id="periodEndInput">
-      <label for="workDaysInput">週の稼働日数（1日あたりの目安の計算に使います）</label>
+
+      <h3>1か月の目標（カテゴリごと）</h3>
+      <p class="section-hint">毎月1日に自動でリセットされます。月の途中で始めても、残り日数から自動でペース計算します。</p>
+      <div id="monthlyGoalInputs"></div>
+
+      <label for="workDaysInput">週の稼働日数（今週の目安の計算に使います）</label>
       <select id="workDaysInput">
         <option value="1">週1日</option>
         <option value="2">週2日</option>
@@ -231,8 +233,8 @@
         <button class="btn-primary" id="saveSettings">保存</button>
       </div>
       <div class="danger-zone">
-        <p>新しい期間として最初からやり直したいときに使います。目標数値・記録・期限がすべて初期化されます。</p>
-        <button class="btn-danger" id="resetAll">この期間をリセットして新しく始める</button>
+        <p>これまでの行動記録をすべて削除します。目標の数値や稼働日数の設定は残ります。</p>
+        <button class="btn-danger" id="resetAll">すべての行動記録を削除する</button>
       </div>
     </div>
   </div>
@@ -249,45 +251,33 @@
     return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
   }
   function pad(n){ return n < 10 ? "0"+n : ""+n; }
-  function addMonths(dateStr, months){
-    var d = new Date(dateStr + "T00:00:00");
-    d.setMonth(d.getMonth() + months);
-    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
-  }
-  function fmtJP(dateStr){
-    var p = dateStr.split("-");
-    return p[0] + "年" + p[1] + "月" + p[2] + "日";
-  }
   function uid(){
     return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-  }
-  function daysBetween(startStr, endStr){
-    var a = new Date(startStr + "T00:00:00");
-    var b = new Date(endStr + "T00:00:00");
-    return Math.round((b - a) / 86400000) + 1;
-  }
-  function startOfWeek(dateStr){
-    var d = new Date(dateStr + "T00:00:00");
-    var day = d.getDay();
-    var diff = day === 0 ? -6 : 1 - day;
-    d.setDate(d.getDate() + diff);
-    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
   }
   function fmtPace(n){
     if(n <= 0) return "0";
     return (Math.round(n * 10) / 10).toString();
   }
+  function daysInCurrentMonth(){
+    var now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  }
+  function remainingDaysInMonth(){
+    var now = new Date();
+    return daysInCurrentMonth() - now.getDate() + 1;
+  }
+  function remainingWorkDays(){
+    var days = Math.round(remainingDaysInMonth() / 7 * state.workDaysPerWeek);
+    return days < 1 ? 1 : days;
+  }
 
   function defaultState(){
-    var start = todayStr();
-    var goals = {};
-    CATEGORIES.forEach(function(c){ goals[c] = 0; });
+    var monthlyGoals = {};
+    CATEGORIES.forEach(function(c){ monthlyGoals[c] = 0; });
     return {
       purpose: "",
-      periodStart: start,
-      periodEnd: addMonths(start, 3),
       workDaysPerWeek: 6,
-      goals: goals,
+      monthlyGoals: monthlyGoals,
       records: []
     };
   }
@@ -297,13 +287,18 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return defaultState();
       var s = JSON.parse(raw);
-      if(!s.goals) s.goals = {};
-      CATEGORIES.forEach(function(c){ if(typeof s.goals[c] !== "number") s.goals[c] = 0; });
-      if(!Array.isArray(s.records)) s.records = [];
       if(typeof s.purpose !== "string") s.purpose = "";
-      if(!s.periodStart) s.periodStart = todayStr();
-      if(!s.periodEnd) s.periodEnd = addMonths(s.periodStart, 3);
+      if(!Array.isArray(s.records)) s.records = [];
       if(typeof s.workDaysPerWeek !== "number" || s.workDaysPerWeek < 1 || s.workDaysPerWeek > 7) s.workDaysPerWeek = 6;
+      if(!s.monthlyGoals){
+        s.monthlyGoals = {};
+        if(s.goals){
+          CATEGORIES.forEach(function(c){
+            s.monthlyGoals[c] = typeof s.goals[c] === "number" ? Math.round(s.goals[c] / 3) : 0;
+          });
+        }
+      }
+      CATEGORIES.forEach(function(c){ if(typeof s.monthlyGoals[c] !== "number") s.monthlyGoals[c] = 0; });
       return s;
     }catch(e){
       return defaultState();
@@ -315,11 +310,6 @@
 
   var state = load();
 
-  function achievedFor(cat){
-    return state.records
-      .filter(function(r){ return r.category === cat && r.date >= state.periodStart; })
-      .reduce(function(sum, r){ return sum + r.count; }, 0);
-  }
   function todayCountFor(cat){
     var t = todayStr();
     return state.records
@@ -332,17 +322,11 @@
       .filter(function(r){ return r.category === cat && r.date.slice(0, 7) === prefix; })
       .reduce(function(sum, r){ return sum + r.count; }, 0);
   }
-  function expectedWorkDays(){
-    var totalDays = daysBetween(state.periodStart, state.periodEnd);
-    if(totalDays < 1) totalDays = 1;
-    var days = Math.round(totalDays / 7 * state.workDaysPerWeek);
-    return days < 1 ? 1 : days;
-  }
 
   var homeView = document.getElementById("view-home");
   var recordsBody = document.getElementById("recordsBody");
   var filterCat = document.getElementById("filterCat");
-  var periodEndLabel = document.getElementById("periodEndLabel");
+  var currentMonthLabel = document.getElementById("currentMonthLabel");
   var daysLeftEl = document.getElementById("daysLeft");
   var purposeText = document.getElementById("purposeText");
 
@@ -354,32 +338,25 @@
       purposeText.textContent = "タップして「何のために頑張るか」を入力";
       purposeText.classList.add("placeholder");
     }
-    periodEndLabel.textContent = fmtJP(state.periodEnd);
-    var diff = Math.ceil((new Date(state.periodEnd) - new Date(todayStr())) / 86400000);
-    if(diff > 0){
-      daysLeftEl.innerHTML = "あと " + diff + " <small>日</small>";
-    } else if(diff === 0){
-      daysLeftEl.innerHTML = "本日が期限です";
-    } else {
-      daysLeftEl.innerHTML = "期限を " + Math.abs(diff) + "日 超過";
-    }
+    var now = new Date();
+    currentMonthLabel.textContent = now.getFullYear() + "年" + (now.getMonth() + 1) + "月";
+    var left = remainingDaysInMonth();
+    daysLeftEl.innerHTML = "今月あと " + left + " <small>日</small>";
   }
 
   function renderHome(){
     homeView.innerHTML = "";
-    var workDays = expectedWorkDays();
+    var remWorkDays = remainingWorkDays();
 
     CATEGORIES.forEach(function(cat){
-      var target = state.goals[cat] || 0;
-      var achieved = achievedFor(cat);
+      var target = state.monthlyGoals[cat] || 0;
+      var achieved = monthCountFor(cat);
       var pct = target > 0 ? Math.min(100, Math.round(achieved / target * 100)) : 0;
       var tCount = todayCountFor(cat);
-      var mCount = monthCountFor(cat);
       var remaining = Math.max(0, target - achieved);
-      var dailyTarget = target / workDays;
-      var weeklyTarget = dailyTarget * state.workDaysPerWeek;
-      var dailyLabel = fmtPace(dailyTarget);
-      var weeklyLabel = fmtPace(weeklyTarget);
+      var dailyPace = remaining / remWorkDays;
+      var weeklyPace = dailyPace * state.workDaysPerWeek;
+      var weeklyLabel = fmtPace(weeklyPace);
 
       var card = document.createElement("div");
       card.className = "card";
@@ -389,31 +366,22 @@
           '<input type="number" inputmode="numeric" class="today-input" data-cat="' + cat + '" placeholder="件数">' +
           '<button class="add-btn" data-cat="' + cat + '">追加</button>' +
         '</div>' +
-        '<div class="progress-wrap">' +
-          '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="progress-text"><span>累計 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
-        '</div>' +
-        '<div class="mini-stats">' +
-          '<div class="mini-stat"><span class="mini-label">今月</span><span class="mini-value">' + mCount + '件</span></div>' +
-          '<div class="mini-stat"><span class="mini-label">目標まであと</span><span class="mini-value">' + remaining + '件</span></div>' +
-        '</div>' +
-        '<details class="goal-details">' +
-          '<summary>目標を編集</summary>' +
-          '<div class="goal-row"><label>目標</label>' +
-          '<input type="number" inputmode="numeric" class="goal-input" data-cat="' + cat + '" value="' + target + '"> 件（3か月後まで）</div>' +
-          '<div class="pace-hint">目安: 1日 ' + dailyLabel + '件 ／ 週 ' + weeklyLabel + '件（稼働日ベース）</div>' +
-        '</details>';
+        (target > 0 ?
+          '<div class="progress-wrap">' +
+            '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+            '<div class="progress-text"><span>今月 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
+          '</div>' +
+          '<div class="mini-stats">' +
+            '<div class="mini-stat"><span class="mini-label">今週の目安</span><span class="mini-value">' + weeklyLabel + '件</span></div>' +
+            '<div class="mini-stat"><span class="mini-label">目標まであと</span><span class="mini-value">' + remaining + '件</span></div>' +
+          '</div>'
+          :
+          '<div class="progress-wrap"><div class="no-goal-msg">今月 ' + achieved + ' 件（⚙設定から目標を決めると進捗が表示されます）</div></div>'
+        ) +
+        '';
       homeView.appendChild(card);
     });
 
-    homeView.querySelectorAll(".goal-input").forEach(function(inp){
-      inp.addEventListener("change", function(){
-        var v = parseInt(inp.value, 10);
-        state.goals[inp.dataset.cat] = isNaN(v) || v < 0 ? 0 : v;
-        save();
-        renderHome();
-      });
-    });
     homeView.querySelectorAll(".add-btn").forEach(function(btn){
       btn.addEventListener("click", function(){
         var cat = btn.dataset.cat;
@@ -519,13 +487,22 @@
   });
 
   var settingsModal = document.getElementById("settingsModal");
-  var periodEndInput = document.getElementById("periodEndInput");
   var purposeInput = document.getElementById("purposeInput");
   var workDaysInput = document.getElementById("workDaysInput");
+  var monthlyGoalInputs = document.getElementById("monthlyGoalInputs");
+
+  function renderMonthlyGoalInputs(){
+    monthlyGoalInputs.innerHTML = CATEGORIES.map(function(c){
+      return '<div class="monthly-goal-row"><span class="cat-label">' + c + '</span>' +
+        '<input type="number" inputmode="numeric" class="monthly-goal-input" data-cat="' + c + '" value="' + (state.monthlyGoals[c] || 0) + '">' +
+        '<span class="unit">件/月</span></div>';
+    }).join("");
+  }
+
   function openSettingsModal(){
-    periodEndInput.value = state.periodEnd;
     purposeInput.value = state.purpose;
     workDaysInput.value = state.workDaysPerWeek;
+    renderMonthlyGoalInputs();
     settingsModal.classList.remove("hidden");
   }
   document.getElementById("openSettings").addEventListener("click", openSettingsModal);
@@ -535,18 +512,19 @@
   });
   document.getElementById("saveSettings").addEventListener("click", function(){
     state.purpose = purposeInput.value.trim();
-    if(periodEndInput.value){
-      state.periodEnd = periodEndInput.value;
-    }
     state.workDaysPerWeek = parseInt(workDaysInput.value, 10) || 6;
+    monthlyGoalInputs.querySelectorAll(".monthly-goal-input").forEach(function(inp){
+      var v = parseInt(inp.value, 10);
+      state.monthlyGoals[inp.dataset.cat] = isNaN(v) || v < 0 ? 0 : v;
+    });
     save();
     renderHeader();
     renderHome();
     settingsModal.classList.add("hidden");
   });
   document.getElementById("resetAll").addEventListener("click", function(){
-    if(confirm("目標数値・すべての記録・期限を初期化して、今日から新しい3か月を始めます。よろしいですか？")){
-      state = defaultState();
+    if(confirm("これまでの行動記録をすべて削除します。目標や稼働日数の設定は残ります。よろしいですか？")){
+      state.records = [];
       save();
       settingsModal.classList.add("hidden");
       renderAll();
