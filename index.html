@@ -166,6 +166,10 @@
   .btn-danger{width:100%;background:#fff;color:var(--danger);border:1px solid var(--danger);border-radius:10px;padding:12px;font-size:15px;font-weight:700;}
   .monthly-goal-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
   .monthly-goal-row span.cat-label{flex:1;font-size:15px;color:var(--text);}
+  .monthly-goal-row .cat-label-input{
+    flex:1;min-width:0;padding:8px 9px;border:1px solid var(--border);border-radius:8px;
+    font-size:15px;color:var(--text);background:#fff;
+  }
   .monthly-goal-row input{
     width:84px;padding:9px;border:1px solid var(--border);border-radius:8px;
     font-size:16px;text-align:right;color:var(--text);
@@ -217,6 +221,7 @@
       <h3>1か月の目標（カテゴリごと）</h3>
       <p class="section-hint">毎月1日に自動でリセットされます。月の途中で始めても、残り日数から自動でペース計算します。</p>
       <div id="monthlyGoalInputs"></div>
+      <p class="section-hint">「その他」は自由に名前を変更できます（例: 電話、〇〇会など）</p>
 
       <label for="workDaysInput">週の稼働日数（今週の目安の計算に使います）</label>
       <select id="workDaysInput">
@@ -277,9 +282,14 @@
     return {
       purpose: "",
       workDaysPerWeek: 6,
+      otherLabel: "その他",
       monthlyGoals: monthlyGoals,
       records: []
     };
+  }
+
+  function labelFor(cat){
+    return cat === "その他" ? (state.otherLabel || "その他") : cat;
   }
 
   function load(){
@@ -290,6 +300,7 @@
       if(typeof s.purpose !== "string") s.purpose = "";
       if(!Array.isArray(s.records)) s.records = [];
       if(typeof s.workDaysPerWeek !== "number" || s.workDaysPerWeek < 1 || s.workDaysPerWeek > 7) s.workDaysPerWeek = 6;
+      if(typeof s.otherLabel !== "string" || !s.otherLabel.trim()) s.otherLabel = "その他";
       if(!s.monthlyGoals){
         s.monthlyGoals = {};
         if(s.goals){
@@ -361,7 +372,7 @@
       var card = document.createElement("div");
       card.className = "card";
       card.innerHTML =
-        '<div class="card-head"><span class="cat-name">' + cat + '</span><span class="today-badge">本日 ' + tCount + ' 件</span></div>' +
+        '<div class="card-head"><span class="cat-name">' + labelFor(cat) + '</span><span class="today-badge">本日 ' + tCount + ' 件</span></div>' +
         '<div class="today-row">' +
           '<input type="number" inputmode="numeric" class="today-input" data-cat="' + cat + '" placeholder="件数">' +
           '<button class="add-btn" data-cat="' + cat + '">追加</button>' +
@@ -403,7 +414,7 @@
   function renderFilterOptions(){
     var current = filterCat.value;
     filterCat.innerHTML = '<option value="">すべてのカテゴリ</option>' +
-      CATEGORIES.map(function(c){ return '<option value="' + c + '">' + c + '</option>'; }).join("");
+      CATEGORIES.map(function(c){ return '<option value="' + c + '">' + labelFor(c) + '</option>'; }).join("");
     filterCat.value = current;
   }
 
@@ -423,7 +434,7 @@
     recordsBody.innerHTML = rows.map(function(r){
       return '<tr>' +
         '<td>' + r.date + '</td>' +
-        '<td>' + r.category + '</td>' +
+        '<td>' + labelFor(r.category) + '</td>' +
         '<td>' + r.count + '</td>' +
         '<td><button class="del-btn" data-id="' + r.id + '">🗑</button></td>' +
         '</tr>';
@@ -452,7 +463,7 @@
     var totals = {};
     CATEGORIES.forEach(function(c){ totals[c] = 0; });
 
-    var lines = ["日付," + CATEGORIES.join(",")];
+    var lines = ["日付," + CATEGORIES.map(labelFor).join(",")];
     dates.forEach(function(date){
       var row = [date];
       CATEGORIES.forEach(function(c){
@@ -493,7 +504,10 @@
 
   function renderMonthlyGoalInputs(){
     monthlyGoalInputs.innerHTML = CATEGORIES.map(function(c){
-      return '<div class="monthly-goal-row"><span class="cat-label">' + c + '</span>' +
+      var labelHtml = c === "その他" ?
+        '<input type="text" class="other-label-input cat-label-input" value="' + state.otherLabel + '">' :
+        '<span class="cat-label">' + c + '</span>';
+      return '<div class="monthly-goal-row">' + labelHtml +
         '<input type="number" inputmode="numeric" class="monthly-goal-input" data-cat="' + c + '" value="' + (state.monthlyGoals[c] || 0) + '">' +
         '<span class="unit">件/月</span></div>';
     }).join("");
@@ -513,6 +527,10 @@
   document.getElementById("saveSettings").addEventListener("click", function(){
     state.purpose = purposeInput.value.trim();
     state.workDaysPerWeek = parseInt(workDaysInput.value, 10) || 6;
+    var otherLabelInput = monthlyGoalInputs.querySelector(".other-label-input");
+    if(otherLabelInput){
+      state.otherLabel = otherLabelInput.value.trim() || "その他";
+    }
     monthlyGoalInputs.querySelectorAll(".monthly-goal-input").forEach(function(inp){
       var v = parseInt(inp.value, 10);
       state.monthlyGoals[inp.dataset.cat] = isNaN(v) || v < 0 ? 0 : v;
@@ -520,6 +538,7 @@
     save();
     renderHeader();
     renderHome();
+    renderFilterOptions();
     settingsModal.classList.add("hidden");
   });
   document.getElementById("resetAll").addEventListener("click", function(){
