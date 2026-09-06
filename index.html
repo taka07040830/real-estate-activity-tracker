@@ -74,38 +74,44 @@
     box-shadow:0 1px 3px rgba(0,0,0,.06);
     border:1px solid var(--border);
   }
-  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .cat-name{font-weight:700;font-size:19px;}
-  .goal-row{display:flex;align-items:center;gap:8px;font-size:16px;color:var(--sub);margin-bottom:10px;}
-  .goal-row input{
-    width:88px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;
-    font-size:17px;text-align:right;color:var(--text);
+  .today-badge{font-size:13px;color:var(--accent);background:var(--accent-light);border-radius:20px;padding:4px 12px;font-weight:700;white-space:nowrap;}
+  .today-row{display:flex;align-items:center;gap:8px;}
+  .today-row input{
+    flex:1;min-width:0;padding:12px;border:2px solid var(--border);border-radius:10px;
+    font-size:22px;text-align:center;font-weight:700;
   }
-  .pace-hint{font-size:14px;color:var(--sub);margin:-2px 0 12px;}
-  .progress-wrap{margin-bottom:14px;}
+  .today-row input:focus{border-color:var(--accent);outline:none;}
+  .add-btn{
+    background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:14px 22px;font-size:17px;font-weight:700;white-space:nowrap;
+  }
+  .add-btn:active{opacity:.8;}
+  .progress-wrap{margin:14px 0 10px;}
   .progress-bar{height:11px;background:var(--accent-light);border-radius:6px;overflow:hidden;}
   .progress-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .25s ease;}
   .progress-text{font-size:14px;color:var(--sub);margin-top:6px;display:flex;justify-content:space-between;}
   .progress-text b{color:var(--accent);font-size:16px;}
-  .mini-stats{display:flex;gap:8px;margin-bottom:14px;}
+  .mini-stats{display:flex;gap:8px;margin-bottom:4px;}
   .mini-stat{
     flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;
-    padding:8px 10px;text-align:center;
+    padding:8px 6px;text-align:center;
   }
-  .mini-stat .mini-label{font-size:13px;color:var(--sub);display:block;margin-bottom:3px;}
-  .mini-stat .mini-value{font-size:18px;font-weight:700;color:var(--text);}
-  .mini-stat .mini-value.behind{color:var(--danger);}
-  .today-row{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--border);padding-top:12px;}
-  .today-row .today-count{font-size:14px;color:var(--sub);flex:1;}
-  .today-row input{
-    width:76px;padding:9px;border:1px solid var(--border);border-radius:10px;
-    font-size:18px;text-align:center;
+  .mini-stat .mini-label{font-size:12.5px;color:var(--sub);display:block;margin-bottom:3px;}
+  .mini-stat .mini-value{font-size:17px;font-weight:700;color:var(--text);}
+  .goal-details{margin-top:10px;border-top:1px dashed var(--border);padding-top:2px;}
+  .goal-details summary{
+    font-size:13.5px;color:var(--sub);padding:8px 2px;cursor:pointer;list-style:none;
   }
-  .add-btn{
-    background:var(--accent);color:#fff;border:none;border-radius:10px;
-    padding:10px 16px;font-size:16px;font-weight:700;white-space:nowrap;
+  .goal-details summary::-webkit-details-marker{display:none;}
+  .goal-details summary::before{content:"⚙ ";}
+  .goal-row{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--sub);margin:8px 0 6px;}
+  .goal-row input{
+    width:80px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;
+    font-size:16px;text-align:right;color:var(--text);
   }
-  .add-btn:active{opacity:.8;}
+  .pace-hint{font-size:13px;color:var(--sub);}
 
   .toolbar{display:flex;gap:8px;margin-bottom:12px;}
   .toolbar select{
@@ -151,8 +157,10 @@
   }
   .modal h2{margin:0 0 16px;font-size:19px;}
   .modal label{font-size:15px;color:var(--sub);display:block;margin-bottom:7px;}
-  .modal input[type=date]{
+  .modal input[type=date],
+  .modal select{
     width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:17px;margin-bottom:16px;
+    background:#fff;color:var(--text);
   }
   .modal textarea{
     width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;font-size:16px;
@@ -208,6 +216,16 @@
       <textarea id="purposeInput" placeholder="例: 借金を完済するため。月〇〇円稼ぐ。"></textarea>
       <label for="periodEndInput">目標達成期限</label>
       <input type="date" id="periodEndInput">
+      <label for="workDaysInput">週の稼働日数（1日あたりの目安の計算に使います）</label>
+      <select id="workDaysInput">
+        <option value="1">週1日</option>
+        <option value="2">週2日</option>
+        <option value="3">週3日</option>
+        <option value="4">週4日</option>
+        <option value="5">週5日</option>
+        <option value="6">週6日</option>
+        <option value="7">週7日（毎日）</option>
+      </select>
       <div class="row-btns">
         <button class="btn-secondary" id="closeSettings">閉じる</button>
         <button class="btn-primary" id="saveSettings">保存</button>
@@ -268,6 +286,7 @@
       purpose: "",
       periodStart: start,
       periodEnd: addMonths(start, 3),
+      workDaysPerWeek: 6,
       goals: goals,
       records: []
     };
@@ -284,6 +303,7 @@
       if(typeof s.purpose !== "string") s.purpose = "";
       if(!s.periodStart) s.periodStart = todayStr();
       if(!s.periodEnd) s.periodEnd = addMonths(s.periodStart, 3);
+      if(typeof s.workDaysPerWeek !== "number" || s.workDaysPerWeek < 1 || s.workDaysPerWeek > 7) s.workDaysPerWeek = 6;
       return s;
     }catch(e){
       return defaultState();
@@ -306,12 +326,17 @@
       .filter(function(r){ return r.category === cat && r.date === t; })
       .reduce(function(sum, r){ return sum + r.count; }, 0);
   }
-  function weekCountFor(cat){
-    var ws = startOfWeek(todayStr());
-    if(ws < state.periodStart) ws = state.periodStart;
+  function monthCountFor(cat){
+    var prefix = todayStr().slice(0, 7);
     return state.records
-      .filter(function(r){ return r.category === cat && r.date >= ws; })
+      .filter(function(r){ return r.category === cat && r.date.slice(0, 7) === prefix; })
       .reduce(function(sum, r){ return sum + r.count; }, 0);
+  }
+  function expectedWorkDays(){
+    var totalDays = daysBetween(state.periodStart, state.periodEnd);
+    if(totalDays < 1) totalDays = 1;
+    var days = Math.round(totalDays / 7 * state.workDaysPerWeek);
+    return days < 1 ? 1 : days;
   }
 
   var homeView = document.getElementById("view-home");
@@ -342,41 +367,42 @@
 
   function renderHome(){
     homeView.innerHTML = "";
-    var totalDays = daysBetween(state.periodStart, state.periodEnd);
-    if(totalDays < 1) totalDays = 1;
-    var totalWeeks = totalDays / 7;
+    var workDays = expectedWorkDays();
 
     CATEGORIES.forEach(function(cat){
       var target = state.goals[cat] || 0;
       var achieved = achievedFor(cat);
       var pct = target > 0 ? Math.min(100, Math.round(achieved / target * 100)) : 0;
       var tCount = todayCountFor(cat);
-      var wCount = weekCountFor(cat);
-      var dailyTarget = target / totalDays;
-      var weeklyTarget = target / totalWeeks;
+      var mCount = monthCountFor(cat);
+      var remaining = Math.max(0, target - achieved);
+      var dailyTarget = target / workDays;
+      var weeklyTarget = dailyTarget * state.workDaysPerWeek;
       var dailyLabel = fmtPace(dailyTarget);
       var weeklyLabel = fmtPace(weeklyTarget);
 
       var card = document.createElement("div");
       card.className = "card";
       card.innerHTML =
-        '<div class="card-head"><span class="cat-name">' + cat + '</span></div>' +
-        '<div class="goal-row"><label>目標</label>' +
-        '<input type="number" inputmode="numeric" class="goal-input" data-cat="' + cat + '" value="' + target + '"> 件（3か月後まで）</div>' +
-        '<div class="pace-hint">目安: 1日 ' + dailyLabel + '件 ／ 週 ' + weeklyLabel + '件</div>' +
-        '<div class="progress-wrap">' +
-          '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-          '<div class="progress-text"><span>累計達成 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
-        '</div>' +
-        '<div class="mini-stats">' +
-          '<div class="mini-stat"><span class="mini-label">今週</span><span class="mini-value' + (target > 0 && wCount < weeklyTarget ? ' behind' : '') + '">' + wCount + ' / ' + weeklyLabel + '</span></div>' +
-          '<div class="mini-stat"><span class="mini-label">本日</span><span class="mini-value' + (target > 0 && tCount < dailyTarget ? ' behind' : '') + '">' + tCount + ' / ' + dailyLabel + '</span></div>' +
-        '</div>' +
+        '<div class="card-head"><span class="cat-name">' + cat + '</span><span class="today-badge">本日 ' + tCount + ' 件</span></div>' +
         '<div class="today-row">' +
-          '<span class="today-count">本日 ' + tCount + ' 件 追加済み</span>' +
           '<input type="number" inputmode="numeric" class="today-input" data-cat="' + cat + '" placeholder="件数">' +
           '<button class="add-btn" data-cat="' + cat + '">追加</button>' +
-        '</div>';
+        '</div>' +
+        '<div class="progress-wrap">' +
+          '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="progress-text"><span>累計 <b>' + achieved + '</b> / ' + target + ' 件</span><span>' + pct + '%</span></div>' +
+        '</div>' +
+        '<div class="mini-stats">' +
+          '<div class="mini-stat"><span class="mini-label">今月</span><span class="mini-value">' + mCount + '件</span></div>' +
+          '<div class="mini-stat"><span class="mini-label">目標まであと</span><span class="mini-value">' + remaining + '件</span></div>' +
+        '</div>' +
+        '<details class="goal-details">' +
+          '<summary>目標を編集</summary>' +
+          '<div class="goal-row"><label>目標</label>' +
+          '<input type="number" inputmode="numeric" class="goal-input" data-cat="' + cat + '" value="' + target + '"> 件（3か月後まで）</div>' +
+          '<div class="pace-hint">目安: 1日 ' + dailyLabel + '件 ／ 週 ' + weeklyLabel + '件（稼働日ベース）</div>' +
+        '</details>';
       homeView.appendChild(card);
     });
 
@@ -449,13 +475,28 @@
   filterCat.addEventListener("change", renderRecords);
 
   document.getElementById("exportCsv").addEventListener("click", function(){
-    var filter = filterCat.value;
-    var rows = state.records
-      .filter(function(r){ return !filter || r.category === filter; })
-      .slice()
-      .sort(function(a,b){ return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
-    var csv = "\ufeff日付,カテゴリ,件数\n" +
-      rows.map(function(r){ return r.date + "," + r.category + "," + r.count; }).join("\n");
+    var byDate = {};
+    state.records.forEach(function(r){
+      if(!byDate[r.date]) byDate[r.date] = {};
+      byDate[r.date][r.category] = (byDate[r.date][r.category] || 0) + r.count;
+    });
+    var dates = Object.keys(byDate).sort();
+    var totals = {};
+    CATEGORIES.forEach(function(c){ totals[c] = 0; });
+
+    var lines = ["日付," + CATEGORIES.join(",")];
+    dates.forEach(function(date){
+      var row = [date];
+      CATEGORIES.forEach(function(c){
+        var v = byDate[date][c] || 0;
+        totals[c] += v;
+        row.push(v);
+      });
+      lines.push(row.join(","));
+    });
+    lines.push(["合計"].concat(CATEGORIES.map(function(c){ return totals[c]; })).join(","));
+
+    var csv = "\ufeff" + lines.join("\n");
     var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -480,9 +521,11 @@
   var settingsModal = document.getElementById("settingsModal");
   var periodEndInput = document.getElementById("periodEndInput");
   var purposeInput = document.getElementById("purposeInput");
+  var workDaysInput = document.getElementById("workDaysInput");
   function openSettingsModal(){
     periodEndInput.value = state.periodEnd;
     purposeInput.value = state.purpose;
+    workDaysInput.value = state.workDaysPerWeek;
     settingsModal.classList.remove("hidden");
   }
   document.getElementById("openSettings").addEventListener("click", openSettingsModal);
@@ -495,8 +538,10 @@
     if(periodEndInput.value){
       state.periodEnd = periodEndInput.value;
     }
+    state.workDaysPerWeek = parseInt(workDaysInput.value, 10) || 6;
     save();
     renderHeader();
+    renderHome();
     settingsModal.classList.add("hidden");
   });
   document.getElementById("resetAll").addEventListener("click", function(){
